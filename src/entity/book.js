@@ -108,6 +108,15 @@ class Book {
             this.#updatedAt = new Date().toISOString();
             this.updateFinished();
     }
+
+    getIdNameAndPublisher(){
+        return {
+            id: this.#id,
+            name: this.#name,
+            publisher: this.#publisher,
+
+        };
+    }
 }
 
 module.exports = { books, Book };

@@ -43,4 +43,12 @@ const createBookHandler = (request, h) => {
     }
 };
 
-module.exports = { createBookHandler };
+const getAllBook = (request, h) => {
+    const booksData = books.map((bookData) => bookData.getIdNameAndPublisher());
+    const data = {
+        books: booksData,
+    };
+    return responseSuccess(h, 'Berhasil mendapatkan seluruh buku', data);
+};
+
+module.exports = { createBookHandler, getAllBook };
