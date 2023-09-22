@@ -1,15 +1,15 @@
 const { nanoid } = require('nanoid');
-const { ValidationError } = require('../util');
+const ValidationError = require('../error');
 
 const books = [];
 
 const validate = (name, readPage, pageCount) => {
     if (name === undefined) {
-        throw new ValidationError('Gagal menambahkan buku. Mohon isi nama buku');
+        throw new ValidationError('Mohon isi nama buku');
     }
 
     if (readPage > pageCount) {
-        throw new ValidationError('Gagal menambahkan buku. readPage tidak boleh lebih besar dari pageCount');
+        throw new ValidationError('readPage tidak boleh lebih besar dari pageCount');
     }
 };
 
@@ -78,6 +78,8 @@ class Book {
             author: this.#author,
             summary: this.#summary,
             publisher: this.#publisher,
+            pageCount: this.#pageCount,
+            readPage: this.#readPage,
             finished: this.#finished,
             reading: this.#reading,
             insertedAt: this.#insertedAt,
@@ -119,4 +121,12 @@ class Book {
     }
 }
 
-module.exports = { books, Book };
+const getAllBook = () => books.map((bookData) => bookData.getIdNameAndPublisher());
+
+const getBookById = (id) => books.filter((bookData) => bookData.getData().id === id)[0];
+
+const getBookIndex = (id) => books.findIndex((bookData) => bookData.getData().id === id);
+
+module.exports = {
+    books, Book, getBookById, getAllBook, getBookIndex,
+};
