@@ -49,8 +49,12 @@ const createBookHandler = (request, h) => {
 };
 
 const getAllBooksHandler = (request, h) => {
+    const { name, reading, finished } = request.query;
+
+    const booksData = getAllBook(name, reading, finished);
+
     const data = {
-        books: getAllBook(),
+        books: booksData,
     };
     return responseSuccessWithoutMessage(h, data);
 };
@@ -120,10 +124,8 @@ const deleteBookByIdHandler = (request, h) => {
 
     const index = getBookIndex(id);
 
-    console.log(index);
-
     if (index === -1){
-        return responseFailed(h, 'Buku Gagal Dihapus. Id tidak ditemukan', 404);
+        return responseFailed(h, 'Buku gagal dihapus. Id tidak ditemukan', 404);
     }
 
     books.splice(index, 1);

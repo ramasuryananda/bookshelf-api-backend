@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const { nanoid } = require('nanoid');
 const ValidationError = require('../error');
 
@@ -121,7 +122,13 @@ class Book {
     }
 }
 
-const getAllBook = () => books.map((bookData) => bookData.getIdNameAndPublisher());
+const getAllBook = (name = undefined, reading = undefined, finished = undefined) => books
+        .filter((bookData) => (
+            (name === undefined || bookData.getData().name.toLowerCase().includes(name.toLowerCase()))
+            && (reading === undefined || bookData.getData().reading === (reading !== '0'))
+            && (finished === undefined || bookData.getData().finished === (finished !== '0'))
+        ))
+        .map((bookData) => bookData.getIdNameAndPublisher());
 
 const getBookById = (id) => books.filter((bookData) => bookData.getData().id === id)[0];
 
