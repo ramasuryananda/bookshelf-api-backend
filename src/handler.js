@@ -1,5 +1,10 @@
-const { Book, books } = require('./entity/book');
-const { ValidationError, responseSuccess, responseFailed } = require('./util');
+const {
+ Book, books, getAllBook, getBookById, getBookIndex,
+} = require('./entity/book');
+const ValidationError = require('./error');
+const {
+ responseSuccess, responseFailed, responseSuccessWithoutMessage, responseSuccessWithoutData,
+} = require('./util');
 
 const createBookHandler = (request, h) => {
     const {
@@ -33,7 +38,7 @@ const createBookHandler = (request, h) => {
         let statusCode = 500;
         if(error instanceof ValidationError){
             statusCode = 400;
-            message = error.message;
+            message = `Gagal menambahkan buku. ${error.message}`;
         }else{
             statusCode = 500;
             message = 'Buku gagal ditambahkan';
@@ -43,4 +48,94 @@ const createBookHandler = (request, h) => {
     }
 };
 
-module.exports = { createBookHandler };
+const getAllBooksHandler = (request, h) => {
+    const { name, reading, finished } = request.query;
+
+    const booksData = getAllBook(name, reading, finished);
+
+    const data = {
+        books: booksData,
+    };
+    return responseSuccessWithoutMessage(h, data);
+};
+
+const getBookByIdHandler = (request, h) => {
+    const { id } = request.params;
+
+    const book = getBookById(id);
+
+    if (book === undefined){
+        return responseFailed(h, 'Buku tidak ditemukan', 404);
+    }
+
+    return responseSuccessWithoutMessage(h, { book: book.getData() });
+};
+
+const updateBookByIdHandler = (request, h) => {
+    const {
+        name,
+        year,
+        author,
+        summary,
+        publisher,
+        pageCount,
+        readPage,
+        reading,
+    } = request.payload;
+
+    const { id } = request.params;
+
+    const book = getBookById(id);
+
+    if (book === undefined){
+        return responseFailed(h, 'Gagal memperbarui buku. Id tidak ditemukan', 404);
+    }
+
+    try {
+        book.update(
+            name,
+            year,
+            author,
+            summary,
+            publisher,
+            pageCount,
+            readPage,
+            reading,
+        );
+
+        return responseSuccessWithoutData(h, 'Buku berhasil diperbarui', 200);
+    } catch (error) {
+        let message;
+        let statusCode = 500;
+        if(error instanceof ValidationError){
+            statusCode = 400;
+            message = `Gagal memperbarui buku. ${error.message}`;
+        }else{
+            statusCode = 500;
+            message = 'Buku gagal diperbarui';
+        }
+
+        return responseFailed(h, message, statusCode);
+    }
+};
+
+const deleteBookByIdHandler = (request, h) => {
+    const { id } = request.params;
+
+    const index = getBookIndex(id);
+
+    if (index === -1){
+        return responseFailed(h, 'Buku gagal dihapus. Id tidak ditemukan', 404);
+    }
+
+    books.splice(index, 1);
+    return responseSuccessWithoutData(h, 'Buku berhasil dihapus');
+};
+
+module.exports = {
+    createBookHandler,
+    getAllBooksHandler,
+    getBookByIdHandler,
+    updateBookByIdHandler,
+    deleteBookByIdHandler,
+};
